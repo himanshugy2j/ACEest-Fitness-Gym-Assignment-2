@@ -67,24 +67,19 @@ pipeline {
             steps {
                 echo "🔍 Running SonarQube analysis..."
                 script {
-                    // Use a Docker network so SonarScanner can reach the SonarQube server
-                    sh """
-                        # Ensure the scanner runs on the same network as SonarQube
-                        docker network create -d bridge dev-net || true
-
-                        # Connect Jenkins agent container to dev-net (ignore errors if already connected)
-                        docker network connect dev-net \$(hostname) || true
-
-                        # Run SonarScanner CLI
-                        docker run --rm --network dev-net \
-                            -v \$(pwd):/usr/src \
-                            -w /usr/src \
-                            sonarsource/sonar-scanner-cli:latest \
-                            -Dsonar.projectKey=aceest-fitness \
-                            -Dsonar.sources=app \
-                            -Dsonar.host.url=http://172.17.0.2:9000 \
-                            -Dsonar.login=$squ_d3ca23d8db36af10d686fddae23f7a6b402cd684
-                    """
+                    withCredentials([string(credentialsId: 'JenkinsSonar', variable: 'JenkinsSonar')]) {
+                        sh """
+                            docker run --rm --network host \
+                                -v \$(pwd):/usr/src \
+                                -w /usr/src \
+                                sonarsource/sonar-scanner-cli:latest \
+                                -Dsonar.projectKey=aceest-fitness \
+                                -Dsonar.sources=app \
+                                -Dsonar.python.coverage.reportPaths=coverage.xml \
+                                -Dsonar.host.url=http://172.17.0.2:9000 \
+                                -Dsonar.login=${JenkinsSonar}
+                        """
+                    }
                 }
             }
         }
