@@ -4,7 +4,7 @@ pipeline {
     environment {
         APP_NAME = "aceest-fitness"
         VERSION = "v1.3"
-        DOCKER_IMAGE = "your-dockerhub-username/${APP_NAME}:${VERSION}"
+        DOCKER_IMAGE = "himanshug619/${APP_NAME}:${VERSION}"
         SONARQUBE = "SonarQubeServer"
     }
 
@@ -12,7 +12,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/<your-username>/ACEest-Fitness-Gym-Assignment-2.git'
+                git branch: 'main', url: 'https://github.com/himanshugy2j/ACEest-Fitness-Gym-Assignment-2.git'
             }
         }
 
