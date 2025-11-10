@@ -46,7 +46,7 @@ pipeline {
                     }
                     . venv/bin/activate
                     pip install --upgrade pip setuptools wheel
-                    pip install -r requirements.txt
+                    pip install -r app/requirements.txt
                     '''
                 }
             }
