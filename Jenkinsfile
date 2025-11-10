@@ -24,7 +24,7 @@ pipeline {
 
         stage('Run Unit Tests') {
             steps {
-                sh 'pytest --maxfail=1 --disable-warnings -q'
+                sh 'python3 -m pytest --maxfail=1 --disable-warnings -q'
             }
         }
 
@@ -45,7 +45,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 withCredentials([string(credentialsId: 'dockerhub-token', variable: 'DOCKER_HUB_TOKEN')]) {
-                    sh 'echo $DOCKER_HUB_TOKEN | docker login -u your-dockerhub-username --password-stdin'
+                    sh 'echo $DOCKER_HUB_TOKEN | docker login -u himanshug619  --password-stdin'
                     sh 'docker push $DOCKER_IMAGE'
                 }
             }
