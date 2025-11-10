@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+name: aceest-rolling
+labels:
+app: aceest
+spec:
+replicas: 3
+strategy:
+type: RollingUpdate
+rollingUpdate:
+maxUnavailable: 1
+maxSurge: 1
+selector:
+matchLabels:
+app: aceest
+template:
+metadata:
+labels:
+app: aceest
+version: v1
+spec:
+containers:
+- name: aceest
+image: yourdockerid/aceest:v1
+ports:
+- containerPort: 5000

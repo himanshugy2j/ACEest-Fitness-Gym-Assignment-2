@@ -1,0 +1,13 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\app",
+    "\\app\\tests",
+    "\\jenkins",
+    "\\k8s",
+    "\\k8s\\blue-green",
+    "\\sonar"
+  ],
+  "SelectedNode": "\\k8s\\blue-green\\deployment-v1.yml",
+  "PreviewInSolutionExplorer": false
+}
