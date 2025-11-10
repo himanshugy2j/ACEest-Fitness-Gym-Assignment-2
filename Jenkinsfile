@@ -20,8 +20,8 @@ pipeline {
             steps {
                 sh '''
                     echo "🔧 Installing system dependencies..."
-                    sudo apt-get update
-                    sudo apt-get install -y python3-tk python3-venv python3-pip
+                    apt-get update
+                    apt-get install -y python3-tk python3-venv python3-pip
 
                     echo "📦 Creating virtual environment..."
                     python3 -m venv venv
