@@ -67,22 +67,24 @@ pipeline {
             steps {
                 echo "🔍 Running SonarQube analysis..."
                 script {
-                    withCredentials([string(credentialsId: 'JenkinsSonar', variable: 'JenkinsSonar')]) {
-                        sh """
+                    withCredentials([string(credentialsId: 'JenkinsSonar', variable: 'SONAR_TOKEN')]) {
+                        sh '''
+                            echo "📡 Starting SonarQube analysis via Docker..."
                             docker run --rm --network host \
-                                -v \$(pwd):/usr/src \
+                                -v $WORKSPACE:/usr/src \
                                 -w /usr/src \
                                 sonarsource/sonar-scanner-cli:latest \
                                 -Dsonar.projectKey=aceest-fitness \
                                 -Dsonar.sources=app \
                                 -Dsonar.python.coverage.reportPaths=coverage.xml \
                                 -Dsonar.host.url=http://172.17.0.2:9000 \
-                                -Dsonar.login=$JenkinsSonar
-                        """
+                                -Dsonar.login=$SONAR_TOKEN
+                        '''
                     }
                 }
             }
         }
+
 
         stage('Build Docker Image') {
             steps {
