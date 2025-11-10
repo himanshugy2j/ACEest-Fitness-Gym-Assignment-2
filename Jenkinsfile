@@ -16,31 +16,42 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
+        stage('🔧 Install Dependencies') {
             steps {
-                sh '''
-                    echo "🔧 Installing system dependencies..."
-                    if ! command -v apt-get >/dev/null; then
-                        echo "Skipping apt-get (not supported on this agent)."
-                    else
-                        sudo apt-get update -y || true
-                        sudo apt-get install -y python3-tk python3-venv python3-pip || true
-                    fi
+                script {
+                    echo '🔧 Installing system dependencies...'
 
-                    echo "📦 Creating virtual environment..."
-                    python3 -m venv venv
+                    // Skip sudo entirely if we can’t use it
+                    if (sh(script: 'command -v sudo >/dev/null 2>&1', returnStatus: true) != 0) {
+                        echo '⚠️ Skipping sudo (not available on this Jenkins agent).'
+                    } else {
+                        sh '''
+                        set +e
+                        if command -v apt-get >/dev/null; then
+                            echo "Using apt-get to install dependencies..."
+                            sudo -S apt-get update -y < /dev/null || true
+                            sudo -S apt-get install -y python3-venv python3-pip python3-tk < /dev/null || true
+                        else
+                            echo "apt-get not found, skipping system package installation."
+                        fi
+                        '''
+                    }
+
+                    echo '📦 Creating virtual environment...'
+                    sh '''
+                    python3 -m venv venv || {
+                        echo "⚠️ Virtual env creation failed. ensurepip might be missing."
+                        echo "Try preinstalling python3-venv manually on Jenkins node."
+                        exit 1
+                    }
                     . venv/bin/activate
-
-                    echo "📦 Installing Python dependencies..."
-                    pip install --upgrade pip
-                    if [ -f requirements.txt ]; then
-                        pip install -r requirements.txt
-                    else
-                        pip install flask pytest
-                    fi
-                '''
+                    pip install --upgrade pip setuptools wheel
+                    pip install -r requirements.txt
+                    '''
+                }
             }
         }
+
 
         stage('Run Unit Tests') {
             steps {
