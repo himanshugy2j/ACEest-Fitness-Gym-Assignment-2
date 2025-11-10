@@ -46,7 +46,7 @@ pipeline {
                     }
                     . venv/bin/activate
                     pip install --upgrade pip setuptools wheel
-                    pip install -r app/requirements.txt
+                    pip install -r requirements.txt
                     '''
                 }
             }
@@ -82,7 +82,7 @@ pipeline {
                             sonarsource/sonar-scanner-cli:latest \
                             -Dsonar.projectKey=aceest-fitness \
                             -Dsonar.sources=app \
-                            -Dsonar.host.url=http://sonarqube-local:9000 \
+                            -Dsonar.host.url=http://172.17.0.2:9000 \
                             -Dsonar.login=$squ_d3ca23d8db36af10d686fddae23f7a6b402cd684
                     """
                 }
