@@ -52,7 +52,6 @@ pipeline {
             }
         }
 
-
         stage('Run Unit Tests') {
             steps {
                 sh '''
@@ -85,7 +84,6 @@ pipeline {
             }
         }
 
-
         stage('Build Docker Image') {
             steps {
                 sh '''
@@ -106,11 +104,50 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        // -------- Kubernetes Stages (Fixed) --------
+
+        stage('Kubernetes Namespace Setup') {
             steps {
                 sh '''
-                    echo "🚀 Deploying to Kubernetes..."
-                    kubectl apply -f k8s/deployment.yaml || echo "⚠️ Skipping deploy (no k8s folder found)"
+                    echo "🗂 Creating Kubernetes namespace..."
+                    kubectl apply -f k8/namespace.yaml
+                '''
+            }
+        }
+
+        stage('Deploy - Rolling Update') {
+            steps {
+                sh '''
+                    echo "🔄 Applying Rolling Update Deployment..."
+                    kubectl apply -f k8/rolling-update/deployment-rolling.yaml -n aceest-fitness
+                    kubectl rollout status deployment/aceest-fitness -n aceest-fitness
+                '''
+            }
+        }
+
+        stage('Deploy - Blue-Green') {
+            steps {
+                sh '''
+                    echo "🔵 Deploying Blue version..."
+                    kubectl apply -f k8/blue-green/deployment-blue.yaml -n aceest-fitness
+                    kubectl rollout status deployment/aceest-fitness-blue -n aceest-fitness
+
+                    echo "🟢 Deploying Green version..."
+                    kubectl apply -f k8/blue-green/deployment-green.yaml -n aceest-fitness
+                    kubectl rollout status deployment/aceest-fitness-green -n aceest-fitness
+
+                    echo "Switching Service to Green..."
+                    kubectl patch service aceest-fitness-service -n aceest-fitness \
+                    -p '{"spec":{"selector":{"app":"aceest-fitness","version":"green"}}}'
+                '''
+            }
+        }
+
+        stage('Rollback Check') {
+            steps {
+                sh '''
+                    echo "⚠️ Rollback logic: if Green fails, revert to Blue..."
+                    # kubectl rollout undo deployment/aceest-fitness-green -n aceest-fitness
                 '''
             }
         }

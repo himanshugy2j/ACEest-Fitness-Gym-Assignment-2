@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: aceest-fitness-service
+  namespace: aceest-fitness
+spec:
+  selector:
+    app: aceest-fitness
+    version: blue   # switch to green when needed
+  ports:
+  - protocol: TCP
+    port: 5000
+    targetPort: 5000
+  type: ClusterIP
