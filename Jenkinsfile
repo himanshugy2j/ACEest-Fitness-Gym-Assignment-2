@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.10-slim'
-            args '-u root'   // run as root, allows apt-get without sudo
-        }
-    }
+    agent any
 
     environment {
         APP_NAME = "aceest-fitness"
@@ -25,8 +20,12 @@ pipeline {
             steps {
                 sh '''
                     echo "🔧 Installing system dependencies..."
-                    apt-get update -y
-                    apt-get install -y python3-tk python3-venv python3-pip
+                    if ! command -v apt-get >/dev/null; then
+                        echo "Skipping apt-get (not supported on this agent)."
+                    else
+                        sudo apt-get update -y || true
+                        sudo apt-get install -y python3-tk python3-venv python3-pip || true
+                    fi
 
                     echo "📦 Creating virtual environment..."
                     python3 -m venv venv
@@ -98,11 +97,7 @@ pipeline {
     }
 
     post {
-        success {
-            echo '✅ Pipeline completed successfully!'
-        }
-        failure {
-            echo '❌ Pipeline failed!'
-        }
+        success { echo '✅ Pipeline completed successfully!' }
+        failure { echo '❌ Pipeline failed!' }
     }
 }
