@@ -65,7 +65,7 @@ pipeline {
 
         stage('Code Quality - SonarQube') {
             steps {
-                withSonarQubeEnv('SonarQubeServer') {
+                withSonarQubeEnv('SonarQube-Jenkins') {
                     sh '''
                         echo "🔍 Running SonarQube analysis..."
                         sonar-scanner \
