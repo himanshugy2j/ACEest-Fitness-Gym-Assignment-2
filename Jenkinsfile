@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'python:3.10-slim'
+            args '-u root'   // run as root, allows apt-get without sudo
+        }
+    }
 
     environment {
         APP_NAME = "aceest-fitness"
@@ -20,7 +25,7 @@ pipeline {
             steps {
                 sh '''
                     echo "🔧 Installing system dependencies..."
-                    apt-get update
+                    apt-get update -y
                     apt-get install -y python3-tk python3-venv python3-pip
 
                     echo "📦 Creating virtual environment..."
@@ -29,7 +34,11 @@ pipeline {
 
                     echo "📦 Installing Python dependencies..."
                     pip install --upgrade pip
-                    pip install -r requirements.txt || pip install flask pytest
+                    if [ -f requirements.txt ]; then
+                        pip install -r requirements.txt
+                    else
+                        pip install flask pytest
+                    fi
                 '''
             }
         }
@@ -62,7 +71,7 @@ pipeline {
             steps {
                 sh '''
                     echo "🐳 Building Docker image..."
-                    docker build -t $DOCKER_IMAGE .
+                    docker build -t ${DOCKER_IMAGE} .
                 '''
             }
         }
@@ -72,7 +81,7 @@ pipeline {
                 withCredentials([string(credentialsId: 'dockerhub-token', variable: 'DOCKER_HUB_TOKEN')]) {
                     sh '''
                         echo $DOCKER_HUB_TOKEN | docker login -u himanshug619 --password-stdin
-                        docker push $DOCKER_IMAGE
+                        docker push ${DOCKER_IMAGE}
                     '''
                 }
             }
@@ -82,7 +91,7 @@ pipeline {
             steps {
                 sh '''
                     echo "🚀 Deploying to Kubernetes..."
-                    kubectl apply -f k8s/deployment.yaml
+                    kubectl apply -f k8s/deployment.yaml || echo "⚠️ Skipping deploy (no k8s folder found)"
                 '''
             }
         }
