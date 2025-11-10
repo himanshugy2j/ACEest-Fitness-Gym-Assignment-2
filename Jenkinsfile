@@ -65,15 +65,19 @@ pipeline {
 
         stage('Code Quality - SonarQube') {
             steps {
-                withSonarQubeEnv('SonarQube-Jenkins') {
-                    sh '''
-                        echo "🔍 Running SonarQube analysis..."
+                echo "🔍 Running SonarQube analysis..."
+                sh '''
+                    docker run --rm \
+                        -v $(pwd):/app \
+                        -w /app \
+                        sonarsource/sonar-scanner-cli:latest \
                         sonar-scanner \
-                          -Dsonar.projectKey=aceest-fitness \
-                          -Dsonar.sources=app \
-                          -Dsonar.python.coverage.reportPaths=coverage.xml
-                    '''
-                }
+                            -Dsonar.projectKey=aceest-fitness \
+                            -Dsonar.sources=app \
+                            -Dsonar.python.coverage.reportPaths=coverage.xml \
+                            -Dsonar.host.url=http://localhost:9000 \
+                            -Dsonar.login=squ_810ffbb8ae124f160de5fdbbd2a389f0b91e227f
+                '''
             }
         }
 
