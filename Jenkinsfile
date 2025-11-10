@@ -65,17 +65,25 @@ pipeline {
 
         stage('Code Quality - SonarQube') {
             steps {
-                withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
-                    echo "🔍 Running SonarQube analysis..."
+                echo "🔍 Running SonarQube analysis..."
+                script {
+                    // Use a Docker network so SonarScanner can reach the SonarQube server
                     sh """
-                        docker run --rm --network host \
+                        # Ensure the scanner runs on the same network as SonarQube
+                        docker network create -d bridge dev-net || true
+
+                        # Connect Jenkins agent container to dev-net (ignore errors if already connected)
+                        docker network connect dev-net \$(hostname) || true
+
+                        # Run SonarScanner CLI
+                        docker run --rm --network dev-net \
                             -v \$(pwd):/usr/src \
                             -w /usr/src \
                             sonarsource/sonar-scanner-cli:latest \
                             -Dsonar.projectKey=aceest-fitness \
                             -Dsonar.sources=app \
-                            -Dsonar.host.url=http://localhost:9000 \
-                            -Dsonar.login=\$squ_d3ca23d8db36af10d686fddae23f7a6b402cd684
+                            -Dsonar.host.url=http://sonarqube-local:9000 \
+                            -Dsonar.login=$squ_d3ca23d8db36af10d686fddae23f7a6b402cd684
                     """
                 }
             }
