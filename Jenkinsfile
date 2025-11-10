@@ -65,18 +65,19 @@ pipeline {
 
         stage('Code Quality - SonarQube') {
             steps {
-                echo "🔍 Running SonarQube analysis..."
-                sh '''
-                    docker run --rm \
-                        -v $(pwd):/app \
-                        -w /app \
-                        sonarsource/sonar-scanner-cli:latest \
-                        -Dsonar.projectKey=aceest-fitness \
-                        -Dsonar.sources=app \
-                        -Dsonar.python.coverage.reportPaths=coverage.xml \
-                        -Dsonar.host.url=http://localhost:9000 \
-                        -Dsonar.login=squ_810ffbb8ae124f160de5fdbbd2a389f0b91e227f
-                '''
+                withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+                    echo "🔍 Running SonarQube analysis..."
+                    sh """
+                        docker run --rm --network host \
+                            -v \$(pwd):/usr/src \
+                            -w /usr/src \
+                            sonarsource/sonar-scanner-cli:latest \
+                            -Dsonar.projectKey=aceest-fitness \
+                            -Dsonar.sources=app \
+                            -Dsonar.host.url=http://localhost:9000 \
+                            -Dsonar.login=\$squ_d3ca23d8db36af10d686fddae23f7a6b402cd684
+                    """
+                }
             }
         }
 
