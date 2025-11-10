@@ -77,7 +77,7 @@ pipeline {
                                 -Dsonar.sources=app \
                                 -Dsonar.python.coverage.reportPaths=coverage.xml \
                                 -Dsonar.host.url=http://172.17.0.2:9000 \
-                                -Dsonar.login=${JenkinsSonar}
+                                -Dsonar.login=$JenkinsSonar
                         """
                     }
                 }
