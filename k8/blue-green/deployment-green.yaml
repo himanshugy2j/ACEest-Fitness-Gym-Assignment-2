@@ -20,6 +20,6 @@ spec:
     spec:
       containers:
       - name: aceest
-        image: himanshug619/aceest-fitness:v1.3
+        image: himanshug619/aceest-fitness:v1.4
         ports:
         - containerPort: 5000

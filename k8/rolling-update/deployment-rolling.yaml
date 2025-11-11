@@ -2,26 +2,29 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: aceest-rolling
+  namespace: aceest-fitness
   labels:
     app: aceest
 spec:
   replicas: 3
+  selector:
+    matchLabels:
+      app: aceest
   strategy:
     type: RollingUpdate
     rollingUpdate:
       maxUnavailable: 1
       maxSurge: 1
-  selector:
-    matchLabels:
-      app: aceest
   template:
     metadata:
       labels:
         app: aceest
-        version: v1
     spec:
       containers:
         - name: aceest
-          image: himanshug619/aceest:v1
+          image: himanshug619/aceest-fitness:v1.4
+          imagePullPolicy: Always
           ports:
             - containerPort: 5000
+      imagePullSecrets:
+        - name: dockerhub-secret

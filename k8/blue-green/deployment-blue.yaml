@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: aceest-blue
+  name: aceest-fitness-blue
   namespace: aceest-fitness
   labels:
     app: aceest-fitness
@@ -20,6 +20,6 @@ spec:
     spec:
       containers:
       - name: aceest
-        image: himanshug619/aceest-fitness:v1.3
+        image: himanshug619/aceest-fitness:v1.4
         ports:
         - containerPort: 5000
